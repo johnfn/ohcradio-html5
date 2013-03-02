@@ -3,22 +3,47 @@
   <head>
     <title>OHC Radio</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="ohcdump.js"></script>
+    <link rel="stylesheet" href="style.css"> </link>
     <script>
       $(function() {
         var $audio = $("#audio");
-        $audio.on('ended', function() {
-          $audio.attr("src", "http://compo.thasauce.net/files/Usabell_-_Ancient_Journey(OHC212).mp3").detach().appendTo("#audioContainer");
+
+        var playRandomSong = function() {
+          var which_ohc = Math.floor(Math.random() * all_ohcs.length);
+          var ohc = all_ohcs[which_ohc];
+          var which_rank = Math.floor(Math.random() * 5);
+
+          $("#songName").html( "<b>" + ohc["title" + which_rank] + "</b> - by " + ohc["user" + which_rank])
+          $("#themeName").html("OHC" + ohc.num + " (" + (which_rank + 1) + ") - Theme: " + ohc.theme);
+
+          // For some reason you have to remove and then reattach the audio node. Don't ask me why.
+          $audio.attr("src", ohc["url" + which_rank]).detach().appendTo("#audioContainer");
           $audio[0].play();
-        });
+        }
+
+        playRandomSong();
+        $audio.on('ended', playRandomSong);
       });
     </script>
   </head>
   <h1> OHC Radio </h1>
   <body>
-    <div id="audioContainer">
-      <audio id="audio" controls>
-        <source src="http://compo.thasauce.net/files/blastron_-_The_Fire(OHC217).mp3" onended="nextsong()">
-      </audio>
+    <div style="width:100%;">
+      <div style="width:50%; margin: 0px auto; text-align: center;">
+        <div id="songName">
+        </div>
+        <div id="themeName" style="text-align: center;">
+        </div>
+        <div id="audioContainer" style="text-align: center; padding-top: 25px;">
+          <audio id="audio" controls>
+            <source src="http://compo.thasauce.net/files/blastron_-_The_Fire(OHC217).mp3" onended="nextsong()">
+          </audio>
+        </div>
+        <div style="text-align: center; padding-top: 85px;">
+          These songs have been compiled from <a href="http://compo.thasauce.net/compos/view/OHC">One Hour Compo</a>, where people meet every Thursday to write a song in an hour.
+        </div>
+      </div>
     </div>
   </body>
 </html>
