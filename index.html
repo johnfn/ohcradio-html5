@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>OHC Radio</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+      $(function() {
+        var $audio = $("#audio");
+        $audio.on('ended', function() {
+          $audio.attr("src", "http://compo.thasauce.net/files/Usabell_-_Ancient_Journey(OHC212).mp3").detach().appendTo("#audioContainer");
+          $audio[0].play();
+        });
+      });
+    </script>
+  </head>
+  <h1> OHC Radio </h1>
+  <body>
+    <div id="audioContainer">
+      <audio id="audio" controls>
+        <source src="http://compo.thasauce.net/files/blastron_-_The_Fire(OHC217).mp3" onended="nextsong()">
+      </audio>
+    </div>
+  </body>
+</html>
+
