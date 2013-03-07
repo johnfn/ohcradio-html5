@@ -3,11 +3,18 @@
   <head>
     <title>OHC Radio</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="jquery.jplayer.min.js"></script>
     <script src="ohcdump.js"></script>
     <link rel="stylesheet" href="style.css"> </link>
     <script>
       $(function() {
         var $audio = $("#audio");
+        var playing = false;
+        var has_ever_played = false;
+
+        $("#jp_container_1").bind($.jPlayer.event.ended + ".jp-repeat", function(event) { // Using ".jp-repeat" namespace so we can easily remove this event
+          playRandomSong();
+        });
 
         var playRandomSong = function() {
           var which_ohc = Math.floor(Math.random() * all_ohcs.length);
@@ -17,13 +24,45 @@
           $("#songName").html( "<b>" + ohc["title" + which_rank] + "</b> - by " + ohc["user" + which_rank])
           $("#themeName").html("OHC" + ohc.num + " (" + (which_rank + 1) + ") - Theme: " + ohc.theme);
 
-          // For some reason you have to remove and then reattach the audio node. Don't ask me why.
-          $audio.attr("src", ohc["url" + which_rank]).detach().appendTo("#audioContainer");
-          $audio[0].play();
+          $("#jp_container_1").jPlayer("destroy");
+          $("#jp_container_1").jPlayer({
+            ready: function() {
+              $(this).jPlayer("setMedia", {
+                mp3: ohc["url" + which_rank]
+              }).jPlayer("play");
+              var click = document.ontouchstart === undefined ? 'click' : 'touchstart';
+              var kickoff = function () {
+                $("#jp_container_1").jPlayer("play");
+                document.documentElement.removeEventListener(click, kickoff, true);
+              };
+              document.documentElement.addEventListener(click, kickoff, true);
+            },
+
+            loop: false,
+            swfPath: "http://www.jplayer.org/latest/js/Jplayer.swf"
+          });
+
+          $("#jp_container_1").jPlayer("play");
         }
 
-        playRandomSong();
-        $audio.on('ended', playRandomSong);
+        $("#skipradio").click(playRandomSong);
+
+        $("#playradio").click(function() {
+          if (playing) {
+            $("#playradio").html("Pause!");
+            $("#jp_container_1").jPlayer("pause");
+          } else {
+            $("#playradio").html("Stop.");
+            if (!has_ever_played) {
+              playRandomSong();
+              has_ever_played = true;
+            } else {
+              $("#jp_container_1").jPlayer("play");
+            }
+          }
+
+          playing = !playing;
+        });
       });
     </script>
   </head>
@@ -31,15 +70,15 @@
   <body>
     <div style="width:100%;">
       <div style="width:50%; margin: 0px auto; text-align: center;">
+        <div class="biglink" style="border style: 1px solid gray;">
+          <a id="playradio" class="verybiglink" href="#">Play!</a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+          <a id="skipradio" class="verybiglink" href="#">Skip.</a>
+        </div>
         <div id="songName">
         </div>
         <div id="themeName" style="text-align: center;">
         </div>
-        <div id="audioContainer" style="text-align: center; padding-top: 25px;">
-          <audio id="audio" controls>
-            <source src="http://compo.thasauce.net/files/blastron_-_The_Fire(OHC217).mp3" onended="nextsong()">
-          </audio>
-        </div>
+        <div id="jp_container_1"></div>
         <div style="text-align: center; padding-top: 85px;">
           These songs have been compiled from <a href="http://compo.thasauce.net/compos/view/OHC">One Hour Compo</a>, where people meet every Thursday to write a song in an hour. This webpage is <a href="https://github.com/johnfn/ohcradio-html5">open source</a>.
         </div>
